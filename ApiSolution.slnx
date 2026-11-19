@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="api.csproj" />
+  <Project Path="AppHost/AppHost.csproj" />
+  <Project Path="InternalApi/InternalApi.csproj" />
+  <Project Path="Shared/Shared.csproj" />
+</Solution>

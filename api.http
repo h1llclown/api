@@ -1,0 +1,34 @@
+@externalUrl = http://localhost:5007
+@internalUrl = http://localhost:5099
+@externalApiKey = development-external-key
+@internalBearerToken = <entra-access-token>
+
+### External API - list animals (API key required)
+GET {{externalUrl}}/api/external/animals
+X-API-Key: {{externalApiKey}}
+Accept: application/json
+
+### External API - missing API key
+GET {{externalUrl}}/api/external/animals
+Accept: application/json
+
+### Internal API - list animals (bearer required)
+GET {{internalUrl}}/api/internal/animals
+Authorization: Bearer {{internalBearerToken}}
+Accept: application/json
+
+### Internal API - create animal (bearer required)
+POST {{internalUrl}}/api/internal/animals
+Authorization: Bearer {{internalBearerToken}}
+Content-Type: application/json
+
+{
+  "name": "Luna",
+  "species": "Dog",
+  "type": "Mammal",
+  "breed": "Mixed",
+  "birthDate": null,
+  "attributes": {
+    "habitat": "Home"
+  }
+}
