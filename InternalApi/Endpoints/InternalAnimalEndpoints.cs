@@ -1,5 +1,6 @@
-using Shared.Models;
-using Shared.Stores;
+using Microsoft.AspNetCore.Http.HttpResults;
+using InternalApi.Models;
+using InternalApi.Services;
 
 namespace InternalApi.Endpoints;
 
@@ -7,37 +8,57 @@ public static class InternalAnimalEndpoints
 {
     public static RouteGroupBuilder MapInternalAnimalEndpoints(this IEndpointRouteBuilder app)
     {
-        var animals = app.MapGroup("/api/internal/animals")
+        var records = app.MapGroup("/api/internal/animals")
             .WithTags("Internal Animals")
             .RequireAuthorization();
 
-        animals.MapGet("/", (IAnimalStore store, CancellationToken cancellationToken) =>
-                Results.Ok(store.List()))
+        records.MapGet("/", (IInternalAnimalService service, CancellationToken cancellationToken) =>
+                TypedResults.Ok(service.List()))
             .WithName("InternalListAnimals")
-            .WithSummary("List all animals internally");
+            .WithSummary("List animal registry records")
+            .WithDescription("Returns registry data for authorized internal clients.")
+            .Produces<IReadOnlyCollection<AnimalRecordResponse>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
 
-        animals.MapGet("/{animalId:guid}",
-            (Guid animalId, IAnimalStore store, CancellationToken cancellationToken) =>
-                store.Get(animalId) is { } animal
-                    ? Results.Ok(animal)
-                    : Results.NotFound())
+        records.MapGet("/{animalId:guid}",
+            Results<Ok<AnimalRecordResponse>, NotFound>
+            (Guid animalId, IInternalAnimalService service, CancellationToken cancellationToken) =>
+                service.Get(animalId) is { } record
+                    ? TypedResults.Ok(record)
+                    : TypedResults.NotFound())
             .WithName("InternalGetAnimal")
-            .WithSummary("Get an animal internally");
+            .WithSummary("Get an animal registry record")
+            .WithDescription("Returns registry and care data for an authorized internal client.")
+            .Produces<AnimalRecordResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
 
-        animals.MapPost("/", (CreateAnimalRequest request, IAnimalStore store, CancellationToken cancellationToken) =>
+        records.MapPost("/", (RegisterAnimalRequest request, IInternalAnimalService service, CancellationToken cancellationToken) =>
         {
-            var animal = store.Create(request);
-            return Results.Created($"/api/internal/animals/{animal.Id}", animal);
+            var record = service.Create(request);
+            return TypedResults.Created($"/api/internal/animals/{record.Id}", record);
         })
             .WithName("InternalCreateAnimal")
-            .WithSummary("Create an animal internally");
+            .WithSummary("Register an animal")
+            .WithDescription("Creates a registry record using the internal registry data model.")
+            .Produces<AnimalRecordResponse>(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden)
+            .ProducesValidationProblem();
 
-        animals.MapDelete("/{animalId:guid}",
-            (Guid animalId, IAnimalStore store, CancellationToken cancellationToken) =>
-                store.Delete(animalId) ? Results.NoContent() : Results.NotFound())
+        records.MapDelete("/{animalId:guid}",
+            Results<NoContent, NotFound>
+            (Guid animalId, IInternalAnimalService service, CancellationToken cancellationToken) =>
+                service.Delete(animalId) ? TypedResults.NoContent() : TypedResults.NotFound())
             .WithName("InternalDeleteAnimal")
-            .WithSummary("Delete an animal internally");
+            .WithSummary("Delete an animal registry record")
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status403Forbidden);
 
-        return animals;
+        return records;
     }
 }

@@ -1,5 +1,6 @@
-using Shared.Models;
-using Shared.Stores;
+using Microsoft.AspNetCore.Http.HttpResults;
+using ExternalApi.Models;
+using ExternalApi.Services;
 
 namespace ExternalApi.Endpoints;
 
@@ -7,24 +8,30 @@ public static class ExternalAnimalEndpoints
 {
     public static RouteGroupBuilder MapExternalAnimalEndpoints(this IEndpointRouteBuilder app)
     {
-        var animals = app.MapGroup("/api/external/animals")
-            .WithTags("External Animals");
+        var profiles = app.MapGroup("/api/external/animals")
+            .WithTags("External Animal Profiles");
 
-        animals.MapGet("/", (IAnimalStore store, CancellationToken cancellationToken) =>
-                Results.Ok(store.List()))
+        profiles.MapGet("/", (IExternalAnimalService service, CancellationToken cancellationToken) =>
+                TypedResults.Ok(service.List()))
             .WithName("ExternalListAnimals")
             .WithSummary("List animals through the external API")
-            .WithDescription("Requires an external API key.");
+            .WithDescription("Returns public adoption-profile data. Requires an X-API-Key header.")
+            .Produces<IReadOnlyCollection<AnimalProfileResponse>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
 
-        animals.MapGet("/{animalId:guid}",
-            (Guid animalId, IAnimalStore store, CancellationToken cancellationToken) =>
-                store.Get(animalId) is { } animal
-                    ? Results.Ok(animal)
-                    : Results.NotFound())
+        profiles.MapGet("/{animalId:guid}",
+            Results<Ok<AnimalProfileResponse>, NotFound>
+            (Guid animalId, IExternalAnimalService service, CancellationToken cancellationToken) =>
+                service.Get(animalId) is { } profile
+                    ? TypedResults.Ok(profile)
+                    : TypedResults.NotFound())
             .WithName("ExternalGetAnimal")
-            .WithSummary("Get an animal through the external API")
-            .WithDescription("Requires an external API key.");
+            .WithSummary("Get an animal profile through the external API")
+            .WithDescription("Returns public adoption-profile data. Requires an X-API-Key header.")
+            .Produces<AnimalProfileResponse>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status401Unauthorized);
 
-        return animals;
+        return profiles;
     }
 }

@@ -15,14 +15,8 @@
   <ItemGroup>
     <Compile Remove="AppHost/**/*.cs" />
     <Compile Remove="InternalApi/**/*.cs" />
-    <Compile Remove="Shared/**/*.cs" />
     <None Remove="AppHost/**/*.cs" />
     <None Remove="InternalApi/**/*.cs" />
-    <None Remove="Shared/**/*.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="Shared\Shared.csproj" />
   </ItemGroup>
 
 </Project>

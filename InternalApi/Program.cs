@@ -1,17 +1,21 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using InternalApi.Endpoints;
-using InternalApi.Stores;
+using InternalApi.Services;
 using InternalApi.Outbound;
-using Shared.Stores;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var authority = builder.Configuration["InternalAuth:Authority"];
 var audience = builder.Configuration["InternalAuth:Audience"];
 
-builder.Services.AddSingleton<IAnimalStore, InternalAnimalStore>();
+builder.Services.AddSingleton<IInternalAnimalService, InternalAnimalService>();
 builder.Services.AddOpenApi();
+builder.Services.AddValidation();
+builder.Services.AddProblemDetails();
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<BearerForwardingHandler>();
 builder.Services.AddHttpClient("InternalPartnerApi", client =>
@@ -37,6 +41,8 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+app.UseStatusCodePages();
 app.UseAuthentication();
 app.UseAuthorization();
 

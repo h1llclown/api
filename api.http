@@ -3,7 +3,7 @@
 @externalApiKey = development-external-key
 @internalBearerToken = <entra-access-token>
 
-### External API - list animals (API key required)
+### External API - list public animal profiles (API key required)
 GET {{externalUrl}}/api/external/animals
 X-API-Key: {{externalApiKey}}
 Accept: application/json
@@ -12,7 +12,7 @@ Accept: application/json
 GET {{externalUrl}}/api/external/animals
 Accept: application/json
 
-### Internal API - list animals (bearer required)
+### Internal API - list registry records (bearer required)
 GET {{internalUrl}}/api/internal/animals
 Authorization: Bearer {{internalBearerToken}}
 Accept: application/json
@@ -23,12 +23,13 @@ Authorization: Bearer {{internalBearerToken}}
 Content-Type: application/json
 
 {
-  "name": "Luna",
-  "species": "Dog",
-  "type": "Mammal",
+  "registeredName": "Luna",
+  "species": "Canis lupus familiaris",
+  "category": "Mammal",
   "breed": "Mixed",
   "birthDate": null,
   "attributes": {
     "habitat": "Home"
-  }
+  },
+  "medicalNotes": "Routine check-up up to date"
 }
