@@ -17,7 +17,7 @@ GET {{internalUrl}}/api/internal/animals
 Authorization: Bearer {{internalBearerToken}}
 Accept: application/json
 
-### Internal API - create animal (bearer required)
+### Internal API - create animal in the internal API's in-memory dataset (bearer required)
 POST {{internalUrl}}/api/internal/animals
 Authorization: Bearer {{internalBearerToken}}
 Content-Type: application/json
@@ -28,8 +28,15 @@ Content-Type: application/json
   "category": "Mammal",
   "breed": "Mixed",
   "birthDate": null,
+  "publicDescription": "Friendly dog looking for a home.",
+  "availableForAdoption": true,
   "attributes": {
     "habitat": "Home"
   },
   "medicalNotes": "Routine check-up up to date"
 }
+
+### External API - list public profiles from the external API's in-memory dataset
+GET {{externalUrl}}/api/external/animals
+X-API-Key: {{externalApiKey}}
+Accept: application/json

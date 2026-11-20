@@ -1,10 +1,12 @@
 using ExternalApi.Authentication;
 using ExternalApi.Endpoints;
 using ExternalApi.Services;
+using Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddSingleton<IExternalAnimalService, ExternalAnimalService>();
+builder.Services.AddSingleton<IAnimalDataService, AnimalDataService>();
+builder.Services.AddScoped<IExternalAnimalService, ExternalAnimalService>();
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();

@@ -1,28 +1,27 @@
-using System.Collections.Concurrent;
-using ExternalApi.Domain;
 using ExternalApi.Models;
+using Shared.Models;
+using Shared.Services;
 
 namespace ExternalApi.Services;
 
-internal sealed class ExternalAnimalService : IExternalAnimalService
+internal sealed class ExternalAnimalService(IAnimalDataService animalDataService) : IExternalAnimalService
 {
-    private readonly ConcurrentDictionary<Guid, PartnerAnimalListing> _listings = new();
-
     public IReadOnlyCollection<AnimalProfileResponse> List() =>
-        _listings.Values
-            .OrderBy(listing => listing.DisplayName)
-            .Select(ToResponse)
-            .ToArray();
+        animalDataService.List()
+        .Select(ToResponse)
+        .ToArray();
 
     public AnimalProfileResponse? Get(Guid id) =>
-        _listings.TryGetValue(id, out var listing) ? ToResponse(listing) : null;
+        animalDataService.Get(id) is { } animal
+            ? ToResponse(animal)
+            : null;
 
-    private static AnimalProfileResponse ToResponse(PartnerAnimalListing listing) =>
+    private static AnimalProfileResponse ToResponse(AnimalDataRecord animal) =>
         new(
-            listing.Id,
-            listing.DisplayName,
-            listing.SpeciesName,
-            listing.Breed,
-            listing.PublicDescription,
-            listing.Status == AdoptionStatus.Available);
+            animal.Id,
+            animal.Name,
+            animal.Species,
+            animal.Breed,
+            animal.PublicDescription ?? string.Empty,
+            animal.AvailableForAdoption);
 }

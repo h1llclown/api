@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using InternalApi.Endpoints;
 using InternalApi.Services;
 using InternalApi.Outbound;
+using Shared.Services;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 var authority = builder.Configuration["InternalAuth:Authority"];
 var audience = builder.Configuration["InternalAuth:Audience"];
 
-builder.Services.AddSingleton<IInternalAnimalService, InternalAnimalService>();
+builder.Services.AddSingleton<IAnimalDataService, AnimalDataService>();
+builder.Services.AddScoped<IInternalAnimalService, InternalAnimalService>();
 builder.Services.AddOpenApi();
 builder.Services.AddValidation();
 builder.Services.AddProblemDetails();

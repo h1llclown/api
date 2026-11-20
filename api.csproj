@@ -21,4 +21,8 @@
     <None Remove="Shared/**/*.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="Shared\Shared.csproj" />
+  </ItemGroup>
+
 </Project>

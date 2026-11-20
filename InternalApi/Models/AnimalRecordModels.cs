@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Shared.Models;
 
 namespace InternalApi.Models;
 
@@ -22,6 +23,11 @@ public sealed record RegisterAnimalRequest
 
     [MaxLength(2000)]
     public string? MedicalNotes { get; init; }
+
+    [MaxLength(2000)]
+    public string? PublicDescription { get; init; }
+
+    public bool AvailableForAdoption { get; init; } = true;
 }
 
 /// <summary>Animal registry data returned to authorized internal clients.</summary>
@@ -34,14 +40,7 @@ public sealed record AnimalRecordResponse(
     string? Breed,
     IReadOnlyDictionary<string, string>? Attributes,
     string? MedicalNotes,
+    string? PublicDescription,
+    bool AvailableForAdoption,
     DateTimeOffset RegisteredAt,
     DateTimeOffset LastUpdatedAt);
-
-/// <summary>Classification used by the internal animal registry.</summary>
-public enum AnimalCategory
-{
-    Mammal,
-    Bird,
-    Reptile,
-    Fish
-}
